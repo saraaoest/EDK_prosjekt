@@ -31,8 +31,33 @@ def extract_and_divide_data_task1(file, features_str):
 def linear_classifier(features=None):
     categories = 10
 
-    features_str = features if features is not None else ['GenreID', 'spectral_rolloff_mean', 'mfcc_1_mean', 'spectral_centroid_mean', 'tempo']
-    file = 'Classification music\\GenreClassData_30s.txt'
+    columns = ['GenreID',
+                'zero_cross_rate_mean', 'zero_cross_rate_std',
+                'rmse_mean', 'rmse_var',
+                'spectral_centroid_mean', 'spectral_centroid_var',
+                'spectral_bandwidth_mean', 'spectral_bandwidth_var',
+                'spectral_rolloff_mean', 'spectral_rolloff_var',
+                'spectral_contrast_mean', 'spectral_contrast_var',
+                'spectral_flatness_mean', 'spectral_flatness_var',
+                'chroma_stft_1_mean', 'chroma_stft_2_mean', 'chroma_stft_3_mean',
+                'chroma_stft_4_mean', 'chroma_stft_5_mean', 'chroma_stft_6_mean',
+                'chroma_stft_7_mean', 'chroma_stft_8_mean', 'chroma_stft_9_mean',
+                'chroma_stft_10_mean', 'chroma_stft_11_mean', 'chroma_stft_12_mean',
+                'chroma_stft_1_std', 'chroma_stft_2_std', 'chroma_stft_3_std',
+                'chroma_stft_4_std', 'chroma_stft_5_std', 'chroma_stft_6_std',
+                'chroma_stft_7_std', 'chroma_stft_8_std', 'chroma_stft_9_std',
+                'chroma_stft_10_std', 'chroma_stft_11_std', 'chroma_stft_12_std',
+                'tempo',
+                'mfcc_1_mean', 'mfcc_2_mean', 'mfcc_3_mean', 'mfcc_4_mean',
+                'mfcc_5_mean', 'mfcc_6_mean', 'mfcc_7_mean', 'mfcc_8_mean',
+                'mfcc_9_mean', 'mfcc_10_mean', 'mfcc_11_mean', 'mfcc_12_mean',
+                'mfcc_1_std', 'mfcc_2_std', 'mfcc_3_std', 'mfcc_4_std',
+                'mfcc_5_std', 'mfcc_6_std', 'mfcc_7_std', 'mfcc_8_std',
+                'mfcc_9_std', 'mfcc_10_std', 'mfcc_11_std', 'mfcc_12_std'
+            ]
+
+    features_str = features if features is not None else columns
+    file = 'Classification music\\GenreClassData_30s.txt' 
     train_matrix, train_labels, test_matrix, test_labels = extract_and_divide_data_task1(file, features_str)
 
     n_test_samples = test_matrix.shape[0]
@@ -46,30 +71,38 @@ def linear_classifier(features=None):
 
     def sigmoid(z):
         return 1 / (1 + np.exp(-z))
+    
+    def softmax(z):
+        exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))  # For numerical stability
+        return exp_z / np.sum(exp_z, axis=1, keepdims=True)
+    
+    def cost_cross_entropy(W_flat):
+        W = W_flat.reshape(X_train.shape[1], categories)
+        logits = X_train @ W
+        probs = softmax(logits)
+        return -np.mean(np.sum(T_train_categories * np.log(probs + 1e-12), axis=1))
 
     def cost_MSE(W_flat):
         W = W_flat.reshape(X_train.shape[1], categories)
         G = X_train @ W
-        preds = sigmoid(G)  # Bruk sigmoid!
+        preds = sigmoid(G)  
         return 0.5 * np.mean((preds - T_train_categories) ** 2)
 
     W0 = np.random.randn(X_train.shape[1] * categories)
 
-    result = minimize(cost_MSE, W0, method='L-BFGS-B')
+    result = minimize(cost_cross_entropy, W0, method='L-BFGS-B')# Bruk sigmoid! --> heller bruke softmax?
     W_opt = result.x.reshape(X_train.shape[1], categories)
 
     # Test
     G_test = X_test @ W_opt
-    preds_test = sigmoid(G_test)
-
+    preds_test = softmax(G_test) # Bruk sigmoid! --> heller bruke softmax?
     predicted_labels = np.argmax(preds_test, axis=1)
-
     accuracy = np.mean(predicted_labels == test_labels)
-    print(f"Test accuracy: {accuracy:.2f}")
 
     return accuracy
 
 def task4():
-    linear_classifier()
+    accuracy = linear_classifier()
+    print(f"Test accuracy: {accuracy:.2f}")
 
 task4()
