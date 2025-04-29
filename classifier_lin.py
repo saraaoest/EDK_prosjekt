@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import classification_report, confusion_matrix
 from scipy.optimize import minimize
 
 def standardize_matrix(reference_matrix, matrix_to_standardize):
@@ -12,6 +13,29 @@ def standardize_matrix(reference_matrix, matrix_to_standardize):
     standardized_other = (matrix_to_standardize - mean_feature_values) / std_values
 
     return standardized_reference, standardized_other
+
+def extract_data_all(file_path):
+    df = pd.read_csv(file_path)
+    
+    # Remove TrackID, Genre and Type columns, keep all features
+    feature_columns = df.columns.tolist()
+    feature_columns.remove('Track ID')
+    feature_columns.remove('Genre')
+    feature_columns.remove('Type')
+    feature_columns.remove('GenreID')
+    
+    # Split into training and test sets
+    train_data = df[df['Type'] == 'Train']
+    test_data = df[df['Type'] == 'Test']
+    
+    # Extract features and labels
+    X_train = train_data[feature_columns].values
+    y_train = train_data['GenreID'].values
+    
+    X_test = test_data[feature_columns].values
+    y_test = test_data['GenreID'].values
+    
+    return X_train, y_train, X_test, y_test
 
 def extract_and_divide_data_task1(file, features_str):
     data_frame = pd.read_csv(file, sep='\t')  # Load file (tab-separated)
@@ -57,8 +81,13 @@ def linear_classifier(features=None):
             ]
 
     features_str = features if features is not None else columns
-    file = 'Classification music\\GenreClassData_30s.txt' 
+    #file = 'Classification music/aggregated_5s_tracks.csv' 
+    file = 'Classification music/GenreClassData_30s.txt'
+    #train_matrix, train_labels, test_matrix, test_labels = extract_data_all(file)
+    #train_matrix, test_matrix = standardize_matrix(train_matrix, test_matrix)
     train_matrix, train_labels, test_matrix, test_labels = extract_and_divide_data_task1(file, features_str)
+
+    print(train_matrix.shape, train_labels.shape, test_matrix.shape, test_labels.shape)
 
     n_test_samples = test_matrix.shape[0]
     n_train_samples = train_matrix.shape[0]
@@ -98,6 +127,16 @@ def linear_classifier(features=None):
     preds_test = softmax(G_test) # Bruk sigmoid! --> heller bruke softmax?
     predicted_labels = np.argmax(preds_test, axis=1)
     accuracy = np.mean(predicted_labels == test_labels)
+
+    cm = confusion_matrix(test_labels, predicted_labels)
+
+    # Plot confusion matrix using seaborn
+    plt.figure(figsize=(10,8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.title('Confusion Matrix')
+    plt.ylabel('True Label')
+    plt.xlabel('Predicted Label')
+    plt.show()
 
     return accuracy
 
