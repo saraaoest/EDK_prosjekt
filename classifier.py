@@ -153,4 +153,4 @@ def task3():
     print("Preformance =", correct_results_prosentage)
     print("Preformance per class =", performance)
 
-task3()
+task1()
