@@ -44,8 +44,9 @@ def KNN_classifier(features=None):
     categories = 10 
 
     features_str = features if features is not None else ['GenreID', 'spectral_rolloff_mean', 'mfcc_1_mean', 'spectral_centroid_mean', 'tempo']
-    file = 'Classification music\GenreClassData_30s.txt'
+    #file = 'Classification music\GenreClassData_30s.txt'
     #file = os.path.join('Classification music', 'GenreClassData_30s.txt')
+    file = 'C:/Users/sarao/OneDrive - NTNU/Documents/KYB/kyb6/ESTIMERING/project/Classification music/GenreClassData_30s.txt'
     train_matrix, train_labels, test_matrix, test_labels = extract_and_divide_data_task1(file, features_str)
 
     n_test_samples = test_matrix.shape[0]
@@ -57,7 +58,8 @@ def KNN_classifier(features=None):
     for i, test_i in enumerate(test_matrix):  # For each test sample
 
         for j, train_j in enumerate(train_matrix):  # For each train sample
-            distance = np.linalg.norm(test_i - train_j)
+            #distance = np.linalg.norm(test_i - train_j)
+            distance = np.sum((test_i - train_j)**2) 
 
             if len(heap_k_smallest[i]) < K:
                 heapq.heappush(heap_k_smallest[i], (-distance, train_labels[j]))
