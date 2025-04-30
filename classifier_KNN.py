@@ -44,9 +44,8 @@ def KNN_classifier(features=None):
     categories = 10 
 
     features_str = features if features is not None else ['GenreID', 'spectral_rolloff_mean', 'mfcc_1_mean', 'spectral_centroid_mean', 'tempo']
-    #file = 'Classification music\GenreClassData_30s.txt'
-    #file = os.path.join('Classification music', 'GenreClassData_30s.txt')
-    file = 'C:/Users/sarao/OneDrive - NTNU/Documents/KYB/kyb6/ESTIMERING/project/Classification music/GenreClassData_30s.txt'
+    file = 'Classification music/GenreClassData_30s.txt'
+
     train_matrix, train_labels, test_matrix, test_labels = extract_and_divide_data_task1(file, features_str)
 
     n_test_samples = test_matrix.shape[0]
@@ -110,6 +109,7 @@ def KNN_classifier(features=None):
 
 def task1():
     K, correct_results_prosentage, correct_results, performance = KNN_classifier()
+    print("total correct", np.sum(correct_results))
     print("K = ", K)
     print("Preformance =", correct_results_prosentage)
     print("Preformance per class =", performance)

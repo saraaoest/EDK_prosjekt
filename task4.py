@@ -112,18 +112,20 @@ def linear_classifier(cost_function, features=None):
         G_test = X_test @ W_opt
 
         predicted_labels = np.argmax(G_test, axis=1)
+
         accuracy = np.mean(predicted_labels == test_labels)
         acc.append(accuracy)
         print(f"Single accuracy: {accuracy:.2%}")
 
     cm = confusion_matrix(test_labels, predicted_labels)
 
+    genre_names = ['Pop', 'Metal', 'Disco', 'Blues', 'Reggae', 'Classical', 'Rock', 'Hiphop', 'Country', 'Jazz']
     # Plot confusion matrix using seaborn
     plt.figure(figsize=(10,8))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=genre_names, yticklabels=genre_names)
     plt.title('Confusion Matrix')
-    plt.ylabel('True Label')
-    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label', labelpad=20, fontweight= 'bold')
+    plt.xlabel('Predicted Label', labelpad=20, fontweight= 'bold')
     plt.show()
 
     mean_acc = np.mean(acc)
